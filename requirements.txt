@@ -1,0 +1,17 @@
+fastapi>=0.115
+starlette>=0.48  # HTTP_422_UNPROCESSABLE_CONTENT
+uvicorn[standard]>=0.30
+pydantic[email]>=2.7
+pydantic-settings>=2.3
+python-multipart>=0.0.9
+sqlalchemy[asyncio]>=2.0.30
+aiosqlite>=0.20
+asyncpg>=0.29
+PyJWT>=2.8
+cryptography>=42
+httpx>=0.27
+pillow>=10.3
+numpy>=1.26
+pydicom>=2.4
+boto3>=1.34
+celery[redis]>=5.4

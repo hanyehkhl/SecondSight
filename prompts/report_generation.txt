@@ -1,0 +1,11 @@
+Convert the following structured analysis into a professional, concise radiology second-opinion report in {language_name}.
+
+Keep the medical tone formal and clear. Include confidence levels where appropriate.
+Do not add findings, diagnoses or recommendations that are not present in the analysis.
+If the analysis is flagged for human review, state that clearly at the top of the report.
+
+Needs human review: {needs_human_review}
+Review reasons: {review_reasons}
+
+Structured analysis (JSON):
+{analysis_json}

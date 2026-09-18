@@ -1,0 +1,2 @@
+Your previous response could not be parsed as the required JSON object ({error}).
+Answer again and return ONLY the JSON object in the requested format, with no markdown fences or extra text.

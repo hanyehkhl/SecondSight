@@ -1,0 +1,72 @@
+# Full stack: API + Celery worker + Postgres + Redis + MinIO.
+# Model backends default to mock; point VISION_BACKEND / SPEECH_BACKEND at real deployments in .env.
+
+x-app-env: &app-env
+  ENVIRONMENT: ${ENVIRONMENT:-development}
+  JWT_SECRET: ${JWT_SECRET:-insecure-development-secret-change-me-in-production}
+  STORAGE_ENCRYPTION_KEY: ${STORAGE_ENCRYPTION_KEY:-}
+  DATABASE_URL: postgresql+asyncpg://secondsight:secondsight@postgres:5432/secondsight
+  STORAGE_BACKEND: s3
+  S3_ENDPOINT_URL: http://minio:9000
+  S3_BUCKET: secondsight
+  S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+  S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+  TASK_BACKEND: celery
+  REDIS_URL: redis://redis:6379/0
+  SPEECH_BACKEND: ${SPEECH_BACKEND:-mock}
+  MEDASR_ENDPOINT_URL: ${MEDASR_ENDPOINT_URL:-}
+  VISION_BACKEND: ${VISION_BACKEND:-mock}
+  MEDGEMMA_ENDPOINT_URL: ${MEDGEMMA_ENDPOINT_URL:-}
+  MEDGEMMA_MODEL_ID: ${MEDGEMMA_MODEL_ID:-google/medgemma-1.5-4b-it}
+
+services:
+  api:
+    build: .
+    environment: *app-env
+    ports: ["8000:8000"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_started }
+      minio-init: { condition: service_completed_successfully }
+
+  worker:
+    build: .
+    command: celery -A app.worker worker --loglevel=info --concurrency=1
+    environment: *app-env
+    depends_on:
+      api: { condition: service_started }  # the API creates the schema on startup
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: secondsight
+      POSTGRES_PASSWORD: secondsight
+      POSTGRES_DB: secondsight
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U secondsight"]
+      interval: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+
+  minio:
+    image: minio/minio:latest
+    command: server /data --console-address ":9090"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    ports: ["9090:9090"]
+    volumes: [minio-data:/data]
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on: [minio]
+    entrypoint: >
+      /bin/sh -c "until mc alias set local http://minio:9000 $${MINIO_ROOT_USER:-minioadmin} $${MINIO_ROOT_PASSWORD:-minioadmin}; do sleep 1; done;
+      mc mb --ignore-existing local/secondsight"
+
+volumes:
+  postgres-data:
+  minio-data:

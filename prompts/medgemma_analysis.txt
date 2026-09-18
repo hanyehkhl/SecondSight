@@ -1,0 +1,27 @@
+Patient/Physician Question: {transcribed_question}
+
+Image Type: {modality}
+Clinical Context (if any): {clinical_context}
+
+Please analyze the image and answer the question.
+
+Return your response strictly in this JSON format, with no text before or after it:
+
+{
+  "summary": "One paragraph overall impression",
+  "findings": [
+    {
+      "location": "anatomical region",
+      "description": "detailed finding",
+      "severity": "mild | moderate | severe | null",
+      "confidence": 0.0,
+      "differential": ["possible diagnosis 1", "possible diagnosis 2"]
+    }
+  ],
+  "answer_to_question": "Direct and clear answer to the physician's question",
+  "recommendations": ["suggestion 1", "suggestion 2"],
+  "limitations": "Any limitations of this analysis",
+  "overall_confidence": 0.0
+}
+
+Confidence values are numbers between 0.0 and 1.0.

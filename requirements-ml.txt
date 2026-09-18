@@ -1,0 +1,9 @@
+# Only needed for the in-process model backends (SPEECH_BACKEND=medasr_local, VISION_BACKEND=medgemma_local).
+# Install a CUDA build of torch that matches your GPU driver: https://pytorch.org/get-started/locally/
+-r requirements.txt
+torch>=2.4
+transformers>=4.57
+accelerate>=0.33
+librosa>=0.10
+# Decoders for compressed DICOM transfer syntaxes (JPEG, JPEG 2000, JPEG-LS)
+pylibjpeg[all]>=2.0
